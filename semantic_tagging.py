@@ -63,41 +63,50 @@ def auto_sem_tag(in_ABox_usd_file: str, in_TBox_Usd_file: str, out_ABox_usd_file
             if prim_name in synonyms:
                 prim_name = synonyms[prim_name]
 
-            # Split name into words
-            words = re.findall('[A-Z][^A-Z]*', prim_name)
-            sem_classes = []
+            SOMA_DFL_sem_classes = []
+            SOMA_sem_classes = []
             for sem_class_name, sem_class in sem_TBox.items():
                 if sem_class_name.lower() == f"_class_{prim_name}".lower():
-                    sem_classes.append(sem_class)
-                    break
-            if len(sem_classes) == 0:
+                    if "SOMA_DFL" == sem_class.GetParentPath().name:
+                        SOMA_DFL_sem_classes.append(sem_class)
+                    elif "SOMA" == sem_class.GetParentPath().name:
+                        SOMA_sem_classes.append(sem_class)
+
+            if len(SOMA_DFL_sem_classes) == 0:
                 for sem_class_name, sem_class in sem_TBox.items():
                     if f"_class_{prim_name.lower()}" == "_".join(sem_class_name.split("nwn")[:-1]).lower():
-                        sem_classes.append(sem_class)
+                        SOMA_DFL_sem_classes.append(sem_class)
 
-            if len(sem_classes) == 0 and len(words) > 1:
+            # Split name into words
+            words = re.findall('[A-Z][^A-Z]*', prim_name)
+            if len(SOMA_DFL_sem_classes) == 0 and len(words) > 1:
                 for sem_class_name, sem_class in sem_TBox.items():
                     if f"_class_{'_'.join(words).lower()}" == "_".join(sem_class_name.split("nwn")[:-1]).lower():
-                        sem_classes.append(sem_class)
+                        SOMA_DFL_sem_classes.append(sem_class)
 
-            if len(sem_classes) == 0 and len(words) > 1:
+            if len(SOMA_DFL_sem_classes) == 0 and len(words) > 1:
                 for sem_class_name, sem_class in sem_TBox.items():
                     if f"_class_{words[-1].lower()}" == "_".join(sem_class_name.split("nwn")[:-1]).lower():
-                        sem_classes.append(sem_class)
+                        SOMA_DFL_sem_classes.append(sem_class)
 
-            if len(sem_classes) == 0:
+            if len(SOMA_sem_classes) == 0 and len(SOMA_DFL_sem_classes) == 0:
                 print(f"prim_name: {prim_name} is not in sem_TBox")
             
-            if len(sem_classes) > 0:
-                sem_class = sem_classes[0]
-                for sem_class_each in sem_classes:
-                    if "furniture" in sem_class_each.name:
-                        sem_class = sem_class_each
+            semanticTagAPI = UsdOntology.SemanticTagAPI.Apply(prim)
 
-                print(f"prim_name: {prim_name} is in sem_class: {sem_class.name}")
+            if len(SOMA_sem_classes) > 0:
+                SOMA_sem_class = SOMA_sem_classes[0]
+                print(f"prim_name: {prim_name} is in sem_class: {SOMA_sem_class.name}")
+                semanticTagAPI.CreateSemanticLabelsRel().AddTarget(SOMA_sem_class)
 
-                semanticTagAPI = UsdOntology.SemanticTagAPI.Apply(prim)
-                semanticTagAPI.CreateSemanticLabelsRel().AddTarget(sem_class)
+            if len(SOMA_DFL_sem_classes) > 0:
+                SOMA_DFL_sem_class = SOMA_DFL_sem_classes[0]
+                for sem_class in SOMA_DFL_sem_classes:
+                    if "furniture" in sem_class.name:
+                        SOMA_DFL_sem_class = sem_class
+                        break
+                print(f"prim_name: {prim_name} is in sem_class: {SOMA_DFL_sem_class.name}")
+                semanticTagAPI.CreateSemanticLabelsRel().AddTarget(SOMA_DFL_sem_class)
 
     print(f"Save usd stage to {out_ABox_usd_file} that has semantic labels from {in_TBox_Usd_file}")
     stage_ABox.GetRootLayer().Save()
