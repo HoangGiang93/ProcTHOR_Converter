@@ -124,6 +124,10 @@ class ProcthorImporter(Factory):
 
         body_builder = self._world_builder.add_body(body_name=house_name)
 
+        rooms = house["rooms"]
+        for room in rooms:
+            self.import_room(room)
+
         objects = house["objects"]
         for obj in objects:
             self.import_object(house_name, obj)
@@ -140,6 +144,12 @@ class ProcthorImporter(Factory):
                 continue
             ignore_walls.append(wall_id_str)
             self.import_wall(wall, wall_id, walls_with_door)
+
+    def import_room(self, room: Dict[str, Any]) -> None:
+        room_name = room["roomType"]
+        room_id = room["id"].split("|")[-1]
+        room_name = f"{room_name}_{room_id}"
+        self._world_builder.add_body(body_name=room_name, parent_body_name=house_name)
 
     def import_object(self, parent_body_name: str, obj: Dict[str, Any]) -> None:
         body_name = obj["id"].replace("|", "_").replace("_surface", "")
