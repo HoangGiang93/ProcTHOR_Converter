@@ -41,7 +41,7 @@ usdcat ${USD_SEMANTIC_TAGGED} -o ${USD_SEMANTIC_TAGGED_FLATTEN} --flatten
 
 # Clean up the flatten USD
 
-python clean_usd.py --in_usd=${USD_SEMANTIC_TAGGED_FLATTEN} --out_usd=${USD_SEMANTIC_TAGGED_FLATTEN}
+python clean_up_usd.py --in_usd=${USD_SEMANTIC_TAGGED_FLATTEN} --out_usd=${USD_SEMANTIC_TAGGED_FLATTEN}
 
 # Conver the USD into OWL
 
