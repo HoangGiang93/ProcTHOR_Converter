@@ -39,6 +39,10 @@ python semantic_tagging.py --in_usd=${USD_SEMANTIC_REPORTED} --in_TBox_usd=${TBO
 
 usdcat ${USD_SEMANTIC_TAGGED} -o ${USD_SEMANTIC_TAGGED_FLATTEN} --flatten
 
+# Clean up the flatten USD
+
+python clean_usd.py --in_usd=${USD_SEMANTIC_TAGGED_FLATTEN} --out_usd=${USD_SEMANTIC_TAGGED_FLATTEN}
+
 # Conver the USD into OWL
 
 usd_to_ABox --in_usd=${USD_SEMANTIC_TAGGED} --in_owl=${TBOX_OWL} --out_owl=${OUT_OWL}
