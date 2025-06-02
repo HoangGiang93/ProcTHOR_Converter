@@ -178,9 +178,9 @@ class ProcthorImporter(Factory):
         body_builder = self._world_builder.add_body(body_name=body_name, parent_body_name=house_name)
 
         position = obj.get("position", {"x": 0, "y": 0, "z": 0})
-        position_vec = numpy.array([position["x"], position["y"], position["z"]])
+        position_vec = numpy.array([position["x"], position["y"], -position["z"]])
         rotation = obj.get("rotation", {"x": 0, "y": 0, "z": 0})
-        rotation_mat = Rotation.from_euler("xyz", [rotation["x"], rotation["y"], rotation["z"]],
+        rotation_mat = Rotation.from_euler("xyz", [rotation["x"], rotation["y"] + 180, rotation["z"]],
                                            degrees=True)
 
         x_90_rotation_matrix = numpy.array([[1, 0, 0],
@@ -213,10 +213,10 @@ class ProcthorImporter(Factory):
 
         body_builder.set_transform(quat=rotation_quat)
 
-        point_1 = [wall["polygon"][0]["x"], wall["polygon"][0]["y"], wall["polygon"][0]["z"]]
-        point_2 = [wall["polygon"][1]["x"], wall["polygon"][1]["y"], wall["polygon"][1]["z"]]
-        point_3 = [wall["polygon"][2]["x"], wall["polygon"][2]["y"], wall["polygon"][2]["z"]]
-        point_4 = [wall["polygon"][3]["x"], wall["polygon"][3]["y"], wall["polygon"][3]["z"]]
+        point_1 = [wall["polygon"][0]["x"], wall["polygon"][0]["y"], -wall["polygon"][0]["z"]]
+        point_2 = [wall["polygon"][1]["x"], wall["polygon"][1]["y"], -wall["polygon"][1]["z"]]
+        point_3 = [wall["polygon"][2]["x"], wall["polygon"][2]["y"], -wall["polygon"][2]["z"]]
+        point_4 = [wall["polygon"][3]["x"], wall["polygon"][3]["y"], -wall["polygon"][3]["z"]]
 
         points = numpy.array([point_1, point_2, point_3, point_4])
 
@@ -377,16 +377,16 @@ class ProcthorImporter(Factory):
 
         if wall["polygon"][0]["x"] == wall["polygon"][1]["x"]:
             position_vec[0] = position["z"] + wall["polygon"][0]["x"]
-            position_vec[1] = -position["x"] - (
+            position_vec[1] = position["x"] + (
                 wall["polygon"][0]["z"] if wall["polygon"][0]["z"] < wall["polygon"][1]["z"] else wall["polygon"][1][
                     "z"])
             body_builder.set_transform(pos=position_vec,
-                                       quat=Rotation.from_euler("xyz", [0, 0, 90], degrees=True).as_quat())
+                                       quat=Rotation.from_euler("xyz", [0, 0, -90], degrees=True).as_quat())
         elif wall["polygon"][0]["z"] == wall["polygon"][1]["z"]:
             position_vec[0] = position["x"] + (
                 wall["polygon"][0]["x"] if wall["polygon"][0]["x"] < wall["polygon"][1]["x"] else wall["polygon"][1][
                     "x"])
-            position_vec[1] = position["z"] - wall["polygon"][0]["z"]
+            position_vec[1] = -position["z"] + wall["polygon"][0]["z"]
             body_builder.set_transform(pos=position_vec)
         else:
             raise ValueError(f"Invalid wall {wall}")
