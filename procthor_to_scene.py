@@ -295,15 +295,15 @@ class ProcthorImporter(Factory):
                 z = [(point_1[2] + point_2[2]) / 2.0] * 3
                 dz = [(point_1[2] - point_2[2]) * normal[0] / 2.0] * 3
 
-                dz[0] = door["holePolygon"][0]["x"] / 2
+                dz[2] = door["holePolygon"][0]["x"] / 2
                 if point_1[2] > point_2[2]:
-                    z[0] = point_2[2] + dz[0]
-                    dz[2] = (point_1[2] - point_2[2] - door["holePolygon"][1]["x"]) / 2.0
                     z[2] = point_1[2] - dz[2]
+                    dz[0] = (point_1[2] - point_2[2] - door["holePolygon"][1]["x"]) / 2.0
+                    z[0] = point_2[2] + dz[0]
                 else:
-                    z[0] = point_1[2] + dz[0]
-                    dz[2] = (point_2[2] - point_1[2] - door["holePolygon"][1]["x"]) / 2.0
                     z[2] = point_2[2] - dz[2]
+                    dz[0] = (point_2[2] - point_1[2] - door["holePolygon"][1]["x"]) / 2.0
+                    z[0] = point_1[2] + dz[0]
 
                 x = [point_1[0]] * 3
                 dx = [0.05] * 3
@@ -311,15 +311,15 @@ class ProcthorImporter(Factory):
                 x = [(point_2[0] + point_3[0]) / 2.0] * 3
                 dx = [(point_2[0] - point_3[0]) * normal[2] / 2.0] * 3
 
-                dx[0] = door["holePolygon"][0]["x"] / 2.0
+                dx[2] = door["holePolygon"][0]["x"] / 2.0
                 if point_2[0] > point_3[0]:
-                    x[0] = point_3[0] + dx[0]
-                    dx[2] = (point_2[0] - point_3[0] - door["holePolygon"][1]["x"]) / 2.0
                     x[2] = point_2[0] - dx[2]
+                    dx[0] = (point_2[0] - point_3[0] - door["holePolygon"][1]["x"]) / 2.0
+                    x[0] = point_3[0] + dx[0]
                 else:
-                    x[0] = point_2[0] + dx[0]
-                    dx[2] = (point_3[0] - point_2[0] - door["holePolygon"][1]["x"]) / 2.0
                     x[2] = point_3[0] - dx[2]
+                    dx[0] = (point_3[0] - point_2[0] - door["holePolygon"][1]["x"]) / 2.0
+                    x[0] = point_2[0] + dx[0]
 
                 z = [point_1[2]] * 3
                 dz = [0.05] * 3
