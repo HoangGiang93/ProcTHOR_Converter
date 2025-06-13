@@ -131,7 +131,6 @@ def get_asset_paths(asset_name: str) -> List[str]:
 
     return asset_paths
 
-
 class ProcthorImporter(Factory):
     def __init__(self, file_path: str, config: Configuration):
         super().__init__(file_path, config)
@@ -186,9 +185,13 @@ class ProcthorImporter(Factory):
         x_90_rotation_matrix = numpy.array([[1, 0, 0],
                                             [0, 0, -1],
                                             [0, 1, 0]])
-        position_vec = numpy.dot(x_90_rotation_matrix, position_vec)
+        # Axis reflection, used for left to right hand conversion
+        reflect_axis = numpy.diag([1, -1, 1])
+        reflected_transform = reflect_axis.dot(x_90_rotation_matrix)
+        position_vec = reflected_transform.dot(position_vec)
         rotation_quat = Rotation.from_matrix(
-            numpy.dot(x_90_rotation_matrix, numpy.dot(rotation_mat.as_matrix(), x_90_rotation_matrix.T))).as_quat()
+            reflected_transform.dot(rotation_mat.as_matrix()).dot(reflected_transform.T)
+        ).as_quat()
 
         body_builder.set_transform(pos=position_vec, quat=rotation_quat)
 
@@ -396,9 +399,8 @@ class ProcthorImporter(Factory):
 
         asset_name = door["assetId"]
         asset_name = re.sub(r'(\d+)x(\d+)', r'\1_X_\2', asset_name)
-        asset_name = snake_to_camel(asset_name)
         asset_name = asset_name.replace("Doorframe", "Doorway")
-        if not any([door_name in asset_name for door_name in include_doors]):
+        if not any([door_name in snake_to_camel(asset_name) for door_name in include_doors]):
             return None
         self.import_asset(body_builder, asset_name)
 
